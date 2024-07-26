@@ -1,18 +1,14 @@
 // @ts-ignore
 import { ethers, run } from "hardhat";
 import {
-  AirVault,
   AirVault__factory,
-  FUDToken,
   FUDToken__factory,
-  WINToken,
   WINToken__factory,
 } from "../typechain-types";
-import { writeFile, cp } from 'fs';
-import path from 'path';
+import { writeFile, cp } from "fs";
+import path from "path";
 
 import { FormatTypes } from "ethers/lib/utils";
-
 
 function spaces() {
   console.log("--------------------");
@@ -23,29 +19,29 @@ async function main() {
   const deployer = (await ethers.getSigners())[0];
   console.log("Deployer Address:", deployer.address);
 
-  const AirVaultFactory = (await ethers.getContractFactory(
+  const AirVaultFactory: AirVault__factory = await ethers.getContractFactory(
     "AirVault"
-  )) as AirVault__factory;
+  );
 
-  const FUDTokenFactory = (await ethers.getContractFactory(
+  const FUDTokenFactory: FUDToken__factory = await ethers.getContractFactory(
     "FUDToken"
-  )) as FUDToken__factory;
+  );
 
-  const WINTokenFactory = (await ethers.getContractFactory(
+  const WINTokenFactory: WINToken__factory = await ethers.getContractFactory(
     "WINToken"
-  )) as WINToken__factory;
+  );
 
-  const fudToken = (await FUDTokenFactory.deploy(deployer.address)) as FUDToken;
+  const fudToken = await FUDTokenFactory.deploy(deployer.address);
   await fudToken.deployed();
   spaces();
   console.log("FUDToken deployed to:", fudToken.address);
 
-  const winToken = (await WINTokenFactory.deploy()) as WINToken;
+  const winToken = await WINTokenFactory.deploy();
   await winToken.deployed();
   spaces();
   console.log("WINToken deployed to:", winToken.address);
 
-  const airVault = (await AirVaultFactory.deploy()) as AirVault;
+  const airVault = await AirVaultFactory.deploy();
   await airVault.deployed();
   spaces();
   console.log("AirVault deployed to:", airVault.address);
@@ -78,19 +74,19 @@ async function main() {
       constructorArguments: [],
     });
   }
-  const deployedAddress = JSON.stringify({ 
+  const deployedAddress = JSON.stringify({
     fudToken: {
       address: fudToken.address,
-      abi: fudToken.interface.format(FormatTypes.full)
+      abi: fudToken.interface.format(FormatTypes.full),
     },
     winToken: {
       address: winToken.address,
-      abi: winToken.interface.format(FormatTypes.full)
-    }, 
+      abi: winToken.interface.format(FormatTypes.full),
+    },
     airVault: {
       address: airVault.address,
-      abi: airVault.interface.format(FormatTypes.full)
-    } 
+      abi: airVault.interface.format(FormatTypes.full),
+    },
   });
   copy(deployedAddress, network);
 }
@@ -100,28 +96,49 @@ main().catch((error) => {
   process.exitCode = 1;
 });
 
-
 function copy(deployedAddress: string, network: any) {
-  const filePath = path.join(__dirname, '..', '..', 'backend', 'src', 'utils', 'contracts', `${network.chainId}.json`);
+  const filePath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "backend",
+    "src",
+    "utils",
+    "contracts",
+    `${network.chainId}.json`
+  );
   writeFile(filePath, deployedAddress, (err) => {
     if (err) {
-      console.error('Error writing file:', err);
+      console.error("Error writing file:", err);
     } else {
-      console.log(`Addresses save in backend/src/utils/contracts/${network.chainId} for chainId ${network.chainId}`);
+      console.log(
+        `Addresses save in backend/src/utils/contracts/${network.chainId} for chainId ${network.chainId}`
+      );
     }
   });
-  cp('./typechain-types', path.join(__dirname, '..', '..', 'backend', 'types'), {recursive: true}, (err) => {
-    if (err) {
-      console.error('Error copying typechain-types:', err);
-    } else {
-      console.log('Typechain-types copied to backend/types');
+  cp(
+    "./typechain-types",
+    path.join(__dirname, "..", "..", "backend", "types"),
+    { recursive: true },
+    (err) => {
+      if (err) {
+        console.error("Error copying typechain-types:", err);
+      } else {
+        console.log("Typechain-types copied to backend/types");
+      }
     }
-  });
-  writeFile(`./scripts/address/${network.chainId}.json`, deployedAddress, (err) => {
-    if (err) {
-      console.error('Error writing file:', err);
-    } else {
-      console.log(`Addresses save in contracts/address/${network.chainId} for chainId ${network.chainId}`);
+  );
+  writeFile(
+    `./scripts/address/${network.chainId}.json`,
+    deployedAddress,
+    (err) => {
+      if (err) {
+        console.error("Error writing file:", err);
+      } else {
+        console.log(
+          `Addresses save in contracts/address/${network.chainId} for chainId ${network.chainId}`
+        );
+      }
     }
-  });
+  );
 }

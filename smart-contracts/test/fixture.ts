@@ -8,28 +8,27 @@ import {
 } from "../typechain-types";
 
 export async function deployFixture() {
-  const [deployer, addr1, addr2, addr3, distributor] =
-    (await ethers.getSigners()) as SignerWithAddress[];
+  const [deployer, addr1, addr2, addr3]: SignerWithAddress[] =
+    (await ethers.getSigners());
 
-  const FUDTokenFactory = (await ethers.getContractFactory(
+  const FUDTokenFactory: FUDToken__factory = await ethers.getContractFactory(
     "FUDToken",
     deployer
-  )) as FUDToken__factory;
-  const WINTokenFactory = (await ethers.getContractFactory(
+  );
+  const WINTokenFactory: WINToken__factory = await ethers.getContractFactory(
     "WINToken",
     deployer
-  )) as WINToken__factory;
-  const AirVaultFactory = (await ethers.getContractFactory(
+  );
+  const AirVaultFactory: AirVault__factory = await ethers.getContractFactory(
     "AirVault",
     deployer
-  )) as AirVault__factory;
+  );
 
   return {
     addr1,
     addr2,
     addr3,
     deployer,
-    distributor,
     FUDTokenFactory,
     WINTokenFactory,
     AirVaultFactory,
